@@ -6,8 +6,7 @@ import  pandas  as pd
 
 
 leixing=['发明专利','外观设计','实用新型']
-keyword=['智能手表','智能戒指']
-path='PPG/发明专利 智能手表.txt'
+
 
 
 cols=[
@@ -22,7 +21,7 @@ cols=[
 '授权公告号',
 '主分类号'
 ]
-def process_copy_string(leixing,path):
+def process_copy_string(path):
     output_string=''
     with open(path, encoding="utf8") as f:
         data = f.readlines()
@@ -40,7 +39,10 @@ def process_copy_string(leixing,path):
     # 申请号/专利号： 
         for i in range(len(data)):
             line = data[i]
-            line = line.replace(f'{leixing} ', f'{leixing}')
+            for c in leixing:
+                if f'{c} ' in line:
+                    line = line.replace(f'{c} ',f'\n{c} ')
+                line = line.replace(f'{c} ', f'{c}:')
 
             for e in cols:
                 if e in line:
@@ -51,15 +53,19 @@ def process_copy_string(leixing,path):
 
         print(f'行数:{len(data)}')
         max_columns = max(len(s.split(sep)) for s in data)
-        df = pd.DataFrame([s.split(sep) + [''] * (max_columns - len(s.split(sep))) for s in data], columns=['字段'+str(i) for i in range(max_columns)])
+        df = pd.DataFrame([s.split(sep) + [''] * (max_columns - len(s.split(sep))) for s in data if s!=''], columns=['字段'+str(i) for i in range(max_columns)])
         # Save the DataFrame as an Excel file
         excel_path = path.replace('.txt','.xlsx')
         df.to_excel(excel_path, index=False)    
 
+# keyword=['智能手表','智能戒指']
+# path='PPG/发明专利 智能手表.txt'
+# for c in leixing:
+#     for k in keyword:
+#         path=f'PPG/{c} {k}.txt'
 
-for c in leixing:
-    for k in keyword:
-        path=f'PPG/{c} {k}.txt'
+#         process_copy_string(path)
 
-        process_copy_string(c,path)
-
+# process_copy_string('PPG/发明专利 PPG.txt')
+# process_copy_string('PPG/发明专利 脉搏波.txt')
+process_copy_string('PPG/发明专利 辟谷.txt')
